@@ -1,0 +1,2 @@
+"""this program reads in a file containing a ordered set of repeating information, divides the content into groups (like a row of a csv file), then creates a file for each group of info using a specific field value to name each file."""
+# this is intended to be used with the exported data from the PWSH (Get-DLPCompliancePolicy | Format-List) command
