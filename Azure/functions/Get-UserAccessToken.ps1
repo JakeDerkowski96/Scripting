@@ -7,11 +7,14 @@ function Get-UserAccessToken {
     Write-Host "User Access Token: $userToken"
     #>
     # Connect to Azure using interactive login (user account)
-    Connect-AzAccount
-
-    # Retrieve the access token
-    $AccessToken = Get-AzAccessToken -ResourceUrl "https://graph.microsoft.com"
-
+    $AzContext = Get-AzContext 
+    if($null -eq $AzContext){
+        Write-Error "Please authenticate to Azure prior to attempting to obtain an access key"
+        Exit
+    }else {
+        # Retrieve the access token
+        $AccessToken = Get-AzAccessToken -ResourceUrl "https://graph.microsoft.com"
+    }
     # Return the access token
     return $AccessToken.Token
 }

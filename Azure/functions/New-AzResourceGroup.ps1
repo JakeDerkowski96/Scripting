@@ -1,4 +1,4 @@
-function Deploy-AzResourceGroup {
+function New-AzResourceGroup {
     <#
     .DESCRIPTION
     deploys a resource group
