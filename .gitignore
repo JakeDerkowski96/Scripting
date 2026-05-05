@@ -1,4 +1,4 @@
-# Azure\ignore-this-please
+# Archive folder (legacy scripts)
 
 # Byte-compiled / optimized / DLL files
 __pycache__/
@@ -154,4 +154,4 @@ cython_debug/
 #.idea/
 
 
-Azure/ignore-this-please
+_archive/
