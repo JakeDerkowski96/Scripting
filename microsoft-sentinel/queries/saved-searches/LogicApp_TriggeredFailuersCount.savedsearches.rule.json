@@ -1,0 +1,23 @@
+{
+    "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+    "contentVersion": "1.0.0.0",
+    "parameters": {
+        "workspace": {
+            "type": "String"
+        }
+    },
+    "resources": [
+        {
+            "properties": {
+                "category": "Health",
+                "displayName": "LogicApp_TriggeredFailuersCount",
+                "query": "// Author: Microsoft Azure\r\n// Display name: Triggered failuers count\r\n// Description: Show Action/Trigger failures for all Logic App executions by Resource name.\r\n// Categories: Azure Resources\r\n// Resource types: Logic Apps\r\n// Topic: Errors\r\n\r\n//Action/Trigger failures for all Logic App executions\r\nAzureDiagnostics\r\n| where ResourceProvider  == \"MICROSOFT.LOGIC\"  \r\n| where Category == \"WorkflowRuntime\" \r\n| where status_s == \"Failed\" \r\n| where OperationName has \"workflowActionCompleted\" or OperationName has \"workflowTriggerCompleted\" \r\n| extend ResourceName = coalesce(resource_actionName_s, resource_triggerName_s) \r\n| extend ResourceCategory = substring(OperationName, 34, strlen(OperationName) - 43) | summarize dcount(resource_runId_s) by code_s, ResourceName, resource_workflowName_s, ResourceCategory, _ResourceId\r\n| project ResourceCategory, ResourceName , FailureCount = dcount_resource_runId_s , ErrorCode = code_s, LogicAppName = resource_workflowName_s, _ResourceId \r\n| order by FailureCount desc",
+                "functionAlias": "LogicApp_TriggeredFailuersCount",
+                "version": 2
+            },
+            "name": "[concat(parameters('workspace'),'/Microsoft.SecurityInsights/3289d8fd-9a21-4ddc-b232-d8d0063a6a3c_logicapp_triggeredfailuerscount')]",
+            "type": "Microsoft.OperationalInsights/workspaces/providers/savedSearches",
+            "apiVersion": "2020-08-01"
+        }
+    ]
+}

@@ -1,0 +1,23 @@
+{
+    "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+    "contentVersion": "1.0.0.0",
+    "parameters": {
+        "workspace": {
+            "type": "String"
+        }
+    },
+    "resources": [
+        {
+            "properties": {
+                "category": "Defender",
+                "displayName": "DetectLogonsPriortoMDEAlert",
+                "query": "//When a Defender for Endpoint alert is triggered, searches for the most recent interactive logon to the device prior to the alert and detects if they are a local admin on that device\r\nlet timeframe = 48h;\r\nSecurityAlert\r\n| where ProviderName == \"MDATP\"\r\n| project AlertTime=TimeGenerated,DeviceName=CompromisedEntity, AlertName\r\n| join kind=inner (\r\nDeviceLogonEvents\r\n| project TimeGenerated, LogonType, ActionType, InitiatingProcessCommandLine, IsLocalAdmin, AccountName, DeviceName\r\n| where LogonType in (\"Interactive\",\"RemoteInteractive\")\r\n| where ActionType == \"LogonSuccess\"\r\n| where InitiatingProcessCommandLine == \"lsass.exe\"\r\n) on DeviceName\r\n| where (AlertTime - TimeGenerated) between (0min .. timeframe)\r\n| summarize arg_max(TimeGenerated, *) by DeviceName\r\n| project LogonTime=TimeGenerated, AlertTime, AlertName, DeviceName, AccountName, IsLocalAdmin\r\n",
+                "functionAlias": "DetectLogonsPriortoMDEAlert",
+                "version": 2
+            },
+            "name": "[concat(parameters('workspace'),'/Microsoft.SecurityInsights/4e404913-81a7-40fc-b678-f01ab2553947_detectlogonspriortomdealert')]",
+            "type": "Microsoft.OperationalInsights/workspaces/providers/savedSearches",
+            "apiVersion": "2020-08-01"
+        }
+    ]
+}

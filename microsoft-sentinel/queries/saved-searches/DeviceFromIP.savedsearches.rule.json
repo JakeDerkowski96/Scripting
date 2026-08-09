@@ -1,0 +1,24 @@
+{
+    "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+    "contentVersion": "1.0.0.0",
+    "parameters": {
+        "workspace": {
+            "type": "String"
+        }
+    },
+    "resources": [
+        {
+            "properties": {
+                "category": "Function",
+                "displayName": "DeviceFromIP",
+                "query": "\nlet DeviceFromIP = coalesce(Timestamp, now());\r\nlet lastReportIds = DeviceNetworkInfo\r\n| where Timestamp between(max_of(t - 1d, ago(30d)) .. t)\r\n| summarize arg_max(Timestamp, ReportId) by DeviceId;\r\nlet adapters = DeviceNetworkInfo\r\n| where Timestamp between(max_of(t - 1d, ago(30d)) .. t)\r\n| lookup kind = inner lastReportIds on ReportId, DeviceId\r\n| mv-expand todynamic(IPAddresses)\r\n| project DeviceId, IP = tostring(IPAddresses.IPAddress);\r\nT | join adapters on IP | project-away IP1\r\n",
+                "functionAlias": "DeviceFromIP",
+                "functionParameters": "T:(IP:string), Timestamp:datetime = datetime(null)",
+                "version": 2
+            },
+            "name": "[concat(parameters('workspace'),'/Microsoft.SecurityInsights/devicefromip_parser')]",
+            "type": "Microsoft.OperationalInsights/workspaces/providers/savedSearches",
+            "apiVersion": "2020-08-01"
+        }
+    ]
+}

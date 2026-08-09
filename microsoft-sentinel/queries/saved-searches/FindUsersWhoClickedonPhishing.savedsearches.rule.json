@@ -1,0 +1,23 @@
+{
+    "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+    "contentVersion": "1.0.0.0",
+    "parameters": {
+        "workspace": {
+            "type": "String"
+        }
+    },
+    "resources": [
+        {
+            "properties": {
+                "category": "Email",
+                "displayName": "FindUsersWhoClickedonPhishing",
+                "query": "//Find which users clicked on a phishing link after it was detected by Defender for Office 365\r\nSecurityAlert\r\n| where ProviderName == \"OATP\"\r\n| where AlertName in (\"Email messages containing malicious URL removed after delivery\", \"Email messages containing phish URLs removed after delivery\")\r\n| extend x = todynamic(Entities)\r\n| mv-expand x\r\n| parse-where x with * '\"Url\":\"' MaliciousURL '\"' *\r\n| project PhishTime=TimeGenerated, MaliciousURL\r\n| join kind=inner (\r\n    DeviceEvents\r\n    | project TimeGenerated, ActionType, DeviceName, InitiatingProcessAccountName, RemoteUrl\r\n    | where ActionType == \"BrowserLaunchedToOpenUrl\"\r\n    | where RemoteUrl startswith \"http\")\r\n    on $left.MaliciousURL == $right.RemoteUrl\r\n| project-rename URLOpenTime=TimeGenerated\r\n| extend TimeDelta = abs(URLOpenTime - PhishTime)\r\n| project PhishTime, URLOpenTime, TimeDelta, ActionType, RemoteUrl, DeviceName, InitiatingProcessAccountName",
+                "functionAlias": "FindUsersWhoClickedonPhishing",
+                "version": 2
+            },
+            "name": "[concat(parameters('workspace'),'/Microsoft.SecurityInsights/55ad154c-7742-4c51-9ec1-4e021f791b74_finduserswhoclickedonphishing')]",
+            "type": "Microsoft.OperationalInsights/workspaces/providers/savedSearches",
+            "apiVersion": "2020-08-01"
+        }
+    ]
+}

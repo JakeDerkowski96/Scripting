@@ -1,0 +1,24 @@
+{
+    "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+    "contentVersion": "1.0.0.0",
+    "parameters": {
+        "workspace": {
+            "type": "String"
+        }
+    },
+    "resources": [
+        {
+            "properties": {
+                "category": "Function",
+                "displayName": "EnrichAuditEvents_Func",
+                "query": "Tbl\r\n| extend Category = AuditEventDataLookup_Func(CategoryId)\r\n| extend SubCategory = AuditEventDataLookup_Func(SubcategoryId)\r\n| extend AuditPolicyChangesParse = parse_csv(AuditPolicyChanges)\r\n| extend AuditPolicyChange = trim_end(\",\", strcat(AuditEventDataLookup_Func(AuditPolicyChangesParse[0]) ,\",\",AuditEventDataLookup_Func(trim(\" \",tostring(AuditPolicyChangesParse[1])))))\r\n| project TimeGenerated, Computer, Activity, Category, SubCategory, AuditPolicyChange ",
+                "functionAlias": "EnrichAuditEvents_Func",
+                "functionParameters": "Tbl:(TimeGenerated:datetime, Computer:string,Activity:string,CategoryId:string,SubcategoryId:string,AuditPolicyChanges:string)",
+                "version": 2
+            },
+            "name": "[concat(parameters('workspace'),'/Microsoft.SecurityInsights/e38f9fbd-5090-49c5-8393-a214fc38b136')]",
+            "type": "Microsoft.OperationalInsights/workspaces/providers/savedSearches",
+            "apiVersion": "2020-08-01"
+        }
+    ]
+}

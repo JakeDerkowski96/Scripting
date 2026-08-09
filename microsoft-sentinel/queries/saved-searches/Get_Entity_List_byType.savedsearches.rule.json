@@ -1,0 +1,23 @@
+{
+    "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+    "contentVersion": "1.0.0.0",
+    "parameters": {
+        "workspace": {
+            "type": "String"
+        }
+    },
+    "resources": [
+        {
+            "properties": {
+                "category": "Parse",
+                "displayName": "Get_Entity_List_byType",
+                "query": "SecurityAlert\r\n// Converting Entities into dynamic data type and use mv-expand to unpack the array\r\n| extend EntitiesDynamicArray = parse_json(Entities) \r\n| mv-expand EntitiesDynamicArray\r\n// Parsing relevant entity column extract hostname and IP address\r\n| extend EntityType = tostring(parse_json(EntitiesDynamicArray).Type), EntityAddress = tostring(EntitiesDynamicArray.Address), EntityHostName = tostring(EntitiesDynamicArray.HostName), EntityAccountName = tostring(EntitiesDynamicArray.Name)\r\n| extend HostName = iif(EntityType == 'host', EntityHostName, '')\r\n| extend IPAddress = iif(EntityType == 'ip', EntityAddress, '')\r\n| extend Account = iif(EntityType == 'account', EntityAccountName, '')\r\n| where isnotempty(IPAddress) or isnotempty(Account) or isnotempty(HostName)\r\n// Aggregating by Time and Alert to consolidate all entities per Alert\r\n| summarize AccountList=make_set(Account), IPList = make_set(IPAddress), HostList = make_set(HostName) by TimeGenerated, AlertName\r\n",
+                "functionAlias": "Get_Entity_List_byType",
+                "version": 2
+            },
+            "name": "[concat(parameters('workspace'),'/Microsoft.SecurityInsights/e608c19e-5550-41b3-b6ff-927dee4bae1c_get_entity_list_bytype')]",
+            "type": "Microsoft.OperationalInsights/workspaces/providers/savedSearches",
+            "apiVersion": "2020-08-01"
+        }
+    ]
+}
