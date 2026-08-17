@@ -1,6 +1,6 @@
 # Scripting
 
-Automation toolkit for Azure cloud engineering, Microsoft security platforms, and general-purpose file utilities. Built in PowerShell and Python.
+Automation toolkit for Azure cloud engineering, Microsoft security platforms, workstation provisioning, and general-purpose file utilities. Built in PowerShell, Python, and Bash.
 
 ## Repository Structure
 
@@ -16,15 +16,20 @@ Automation toolkit for Azure cloud engineering, Microsoft security platforms, an
 │   ├── detections/      # Detection rule selection and deployment tooling
 │   └── analytics-rules/ # Analytic rule ARM template modification
 │
-├── microsoft-defender/  # (planned)
-├── microsoft-purview/   # (planned)
+├── microsoft-defender/  # Advanced hunting + incident retrieval (Graph security API)
+├── microsoft-purview/   # Sensitivity labels + eDiscovery cases (Graph security API)
+│
+├── desktop/
+│   ├── windows/         # Context-menu registry tweaks + fresh-install provisioning (Chocolatey)
+│   └── linux/           # Ubuntu/Debian environment setup: packages, snaps, GNOME, shell config
 │
 ├── utilities/
 │   ├── file-conversion/ # PDF/DOCX to TXT converters
 │   ├── file-editing/    # Text processing (dedup, filter, split)
 │   ├── images/          # Bulk image cropping
 │   ├── vscode/          # VS Code settings/extensions backup
-│   └── linux/           # User and group enumeration
+│   ├── linux/           # User and group enumeration
+│   └── powershell/      # General-purpose PowerShell helpers, module, and profile tooling
 │
 └── templates/           # Script boilerplate/starter files
 ```
@@ -65,6 +70,11 @@ Deploy-ARMTemplate -TemplatePath ./template.json -ResourceGroup "my-rg"
 Invoke-LAWQuery -ClientId $id -ClientSecret $secret -TenantId $tenant `
     -SubscriptionId $sub -ResourceGroup "my-rg" -Workspace "my-law" `
     -Query "SecurityEvent | take 10"
+
+# Run a Defender XDR advanced hunting query
+. ./microsoft-defender/Invoke-DefenderAdvancedHunting.ps1
+Invoke-DefenderAdvancedHunting -ClientId $id -ClientSecret $secret -TenantId $tenant `
+    -Query "DeviceProcessEvents | where Timestamp > ago(1h) | take 20"
 ```
 
 ```bash
