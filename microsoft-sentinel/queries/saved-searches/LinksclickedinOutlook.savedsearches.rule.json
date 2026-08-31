@@ -1,0 +1,44 @@
+{
+    "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+    "contentVersion": "1.0.0.0",
+    "parameters": {
+        "workspace": {
+            "type": "String"
+        }
+    },
+    "resources": [
+        {
+            "properties": {
+                "category": "Hunting Queries",
+                "displayName": "Links clicked in Outlook",
+                "query": "DeviceEvents\r\n| where isnotempty(RemoteUrl)\r\n| where InitiatingProcessFileName has \"outlook\"\r\n| project RemoteUrl, DeviceName, InitiatingProcessAccountName, TimeGenerated\r\n| order by TimeGenerated desc",
+                "tags": [
+                    {
+                        "name": "description",
+                        "value": ""
+                    },
+                    {
+                        "name": "tactics",
+                        "value": ""
+                    },
+                    {
+                        "name": "techniques",
+                        "value": ""
+                    },
+                    {
+                        "name": "createdBy",
+                        "value": "Jon.McDonald@5qcloud.com"
+                    },
+                    {
+                        "name": "createdTimeUtc",
+                        "value": "01/06/2022 19:10:21"
+                    }
+                ],
+                "version": 2
+            },
+            "name": "[concat(parameters('workspace'),'/Microsoft.SecurityInsights/2261029f-ad2b-41f4-b071-ec7ca22b0eac')]",
+            "type": "Microsoft.OperationalInsights/workspaces/providers/savedSearches",
+            "apiVersion": "2020-08-01"
+        }
+    ]
+}

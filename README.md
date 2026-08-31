@@ -1,23 +1,42 @@
 # Scripting
 
-Automation toolkit for Azure cloud engineering, Microsoft security platforms, workstation provisioning, and general-purpose file utilities. Built in PowerShell, Python, and Bash.
+Automation toolkit for Azure cloud engineering, Microsoft security platforms, workstation provisioning, and general-purpose file/PowerShell utilities. Built in PowerShell, Python, and Bash.
+
+Consolidated from the former `Azure-Powershell`, `MS-Sentinel-Experimental-Workspace`, and `Pwsh` repos — see git history on the `repo-reorganization` branch for the migration.
 
 ## Repository Structure
 
 ```
 ├── azure/
-│   ├── functions/       # Azure auth, ARM deployment, resource management, Entra ID
+│   ├── functions/       # Azure auth, resource management, Logic Apps, Content Hub
+│   ├── deploy/          # ARM template deployment (local/remote/directory, Log Analytics)
 │   └── kql/             # Log Analytics KQL query execution via REST API
+│
+├── entra/
+│   ├── app-registrations/ # App reg / service principal inventory & permission management
+│   ├── roles/            # Entra directory role inventory
+│   └── groups/           # Group membership lookups
+│
+├── exchange-online/     # Exchange Online / Security & Compliance PowerShell connections
 │
 ├── microsoft-graph/     # Generic Microsoft Graph API caller (OAuth 2.0 client credentials)
 │
-├── microsoft-sentinel/
-│   ├── deploy/          # Workspace creation, data ingestion to Log Analytics
-│   ├── detections/      # Detection rule selection and deployment tooling
-│   └── analytics-rules/ # Analytic rule ARM template modification
-│
 ├── microsoft-defender/  # Advanced hunting + incident retrieval (Graph security API)
+│
 ├── microsoft-purview/   # Sensitivity labels + eDiscovery cases (Graph security API)
+│
+├── microsoft-sentinel/
+│   ├── deploy/           # Workspace creation, playbook/service principal setup, data ingestion
+│   ├── detections/       # Detection rule selection and deployment tooling
+│   ├── analytics-rules/  # Analytic rule ARM template modification
+│   ├── playbooks/        # Logic App playbook ARM template generator
+│   ├── queries/          # KQL hunting queries + saved-search rule exports
+│   └── test-tenant/      # Bulk test-user creation for a Sentinel test tenant
+│
+├── powershell/
+│   ├── functions/       # Reusable PowerShell functions (logging, file/path checks, auth)
+│   ├── modules/         # Module scaffolding and install/update helpers
+│   └── profiles/        # PowerShell profile setup
 │
 ├── desktop/
 │   ├── windows/         # Context-menu registry tweaks + fresh-install provisioning (Chocolatey)
@@ -27,9 +46,9 @@ Automation toolkit for Azure cloud engineering, Microsoft security platforms, wo
 │   ├── file-conversion/ # PDF/DOCX to TXT converters
 │   ├── file-editing/    # Text processing (dedup, filter, split)
 │   ├── images/          # Bulk image cropping
+│   ├── powershell/      # General-purpose PowerShell toolkit
 │   ├── vscode/          # VS Code settings/extensions backup
-│   ├── linux/           # User and group enumeration
-│   └── powershell/      # General-purpose PowerShell helpers, module, and profile tooling
+│   └── linux/           # User and group enumeration
 │
 └── templates/           # Script boilerplate/starter files
 ```
@@ -70,11 +89,6 @@ Deploy-ARMTemplate -TemplatePath ./template.json -ResourceGroup "my-rg"
 Invoke-LAWQuery -ClientId $id -ClientSecret $secret -TenantId $tenant `
     -SubscriptionId $sub -ResourceGroup "my-rg" -Workspace "my-law" `
     -Query "SecurityEvent | take 10"
-
-# Run a Defender XDR advanced hunting query
-. ./microsoft-defender/Invoke-DefenderAdvancedHunting.ps1
-Invoke-DefenderAdvancedHunting -ClientId $id -ClientSecret $secret -TenantId $tenant `
-    -Query "DeviceProcessEvents | where Timestamp > ago(1h) | take 20"
 ```
 
 ```bash

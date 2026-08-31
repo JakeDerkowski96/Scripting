@@ -1,0 +1,23 @@
+{
+    "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+    "contentVersion": "1.0.0.0",
+    "parameters": {
+        "workspace": {
+            "type": "String"
+        }
+    },
+    "resources": [
+        {
+            "properties": {
+                "category": "format",
+                "displayName": "Convert2Json",
+                "query": "| extend PackedRecord = pack_all()\r\n| summarize Result = make_list(PackedRecord)",
+                "functionAlias": "Convert2Json",
+                "version": 2
+            },
+            "name": "[concat(parameters('workspace'),'/Microsoft.SecurityInsights/ec9ce73d-34ef-4df8-b474-3ec03b7d1c40_convert2json')]",
+            "type": "Microsoft.OperationalInsights/workspaces/providers/savedSearches",
+            "apiVersion": "2020-08-01"
+        }
+    ]
+}
