@@ -1,0 +1,115 @@
+{
+    "Empty main function": {
+        "prefix": "empty_main",
+        "body": [
+            "def main():",
+            "    # Your code here",
+            "",
+            "if __name__ == '__main__':",
+            "    main()"
+        ],
+        "description": "Empty main function"
+    },
+    "Parse args and put in main": {
+        "prefix": "parse_some_args",
+        "body": [
+            "import argparse",
+            "import sys",
+            "",
+            "",
+            "def parse_args():",
+            "    parser = argparse.ArgumentParser('')",
+            "    parser.add_argument('arg1',",
+            "                        metavar='',",
+            "                        help='the name (or path) to the CSV file you wish to view'",
+            "    )",
+            "    parser.add_argument('--option1', '-opt',",
+            "                        default='', nargs='', action='', type=, ",
+            "                        dest='',",
+            "                        help=''",
+            "    )",
+            "",
+            "    parser.add_argument('-p', '--path', type=str,",
+            "                        default='', ",
+            "                        help=''",
+            "    )",
+            "    parser.add_argument(\"-o\", \"--output\", action='store', type=str,",
+            "                        dest='output', ",
+            "                        help=\"Output name\"",
+            "    )",
+            "    parser.add_argument('-v', '--verbose', action='count', default=0)",
+            "",
+            "    if len(sys.argv) == 1:",
+            "        parser.print_help()",
+            "        sys.exit(0)",
+            "",
+            "    return parser.parse_args()",
+            "",
+            "",
+            "",
+            "def main():",
+            "    args = parse_args()",
+            "    print(args)",
+            "    ",
+            "",
+            "",
+            "if __name__ == '__main__':",
+            "    main()"
+        ],
+        "description": "Parse args and put in main"
+    },
+    "define function @PS": {
+        "prefix": "def",
+        "body": [
+            "def ${1:function}(${2:self}${3:, args}):",
+            "\t${4:pass}$0"
+        ],
+        "description": "define function"
+    },
+    "with open() @PS": {
+        "prefix": "with-open",
+        "body": [
+            "with open(${1:path}) as ${2:f}:",
+            "\t$0"
+        ],
+        "description": "with statement for opening files"
+    },
+    "function doc string": {
+        "prefix": [
+            "doc-string"
+        ],
+        "body": [
+            "$BLOCK_COMMENT_START",
+            "${1:Description}",
+            "",
+            "Parameters:",
+            "\t${2:param}",
+            "",
+            "Returns:",
+            "\t${3:returns}",
+            "$BLOCK_COMMENT_END"
+        ]
+    },
+    "Argparse function, and defining and calling main--used in most scripts": {
+        "prefix": "script_structure",
+        "body": [
+            "import argparse",
+            "",
+            "def parse_args():",
+            "    parser = argparse.ArgumentParser()",
+            "    parser.add_argument('input_file', type=str, help=\"Path to the input file\")",
+            "    parser.add_argument('--output', '-o', type=str, default='output.txt', help=\"Name of the output file\")",
+            "    return parser.parse_args()",
+            "",
+            "",
+            "def main():",
+            "    args = parse_args()",
+            "    print(args)",
+            "",
+            "",
+            "if __name__ == '__main__':",
+            "    main()"
+        ],
+        "description": "Argparse function, and defining and calling main--used in most scripts"
+    }
+}
