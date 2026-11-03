@@ -1,0 +1,52 @@
+name: repo-radar-ci
+
+on:
+  pull_request:
+    paths:
+      - "utilities/repo-radar/**"
+      - ".github/workflows/repo-radar-ci.yml"
+  push:
+    branches: [main]
+    paths:
+      - "utilities/repo-radar/**"
+      - ".github/workflows/repo-radar-ci.yml"
+
+permissions:
+  contents: read
+
+concurrency:
+  group: repo-radar-ci-${{ github.ref }}
+  cancel-in-progress: true
+
+defaults:
+  run:
+    working-directory: utilities/repo-radar
+
+jobs:
+  test:
+    runs-on: ${{ matrix.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-latest, windows-latest]
+        python: ["3.11", "3.13"]
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: ${{ matrix.python }}
+          cache: pip
+          cache-dependency-path: utilities/repo-radar/pyproject.toml
+      - run: pip install -e ".[dev]"
+      - run: ruff check --output-format=github .
+      - run: ruff format --check .
+      - run: mypy src
+      - name: Test
+        shell: bash
+        run: |
+          pytest --junitxml=results.xml
+          {
+            echo "### repo-radar tests (${{ matrix.os }}, py${{ matrix.python }})"
+            echo
+            echo "Result file: results.xml"
+          } >> "$GITHUB_STEP_SUMMARY"
