@@ -8,7 +8,8 @@ All notable changes to this project are documented here, following
 
 ### Added
 
-- `scan`, `list`, `show`, `report` and `init` commands.
+- `scan`, `list`, `show`, `report`, `init` and `check` commands; `python -m repo_radar` entry point.
+- `check` enforces the repos-folder rules (git-only folders, expected visibility) and exits 3 on violations.
 - Terminal table and self-contained HTML dashboard.
 - Attention flags: dirty, unpushed, behind, no-remote, no-upstream, open-prs,
   ci-failing, stale, not-git, no-meta, bad-meta, git-error.
