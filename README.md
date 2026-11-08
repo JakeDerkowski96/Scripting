@@ -19,7 +19,7 @@ This repo replaces four previously scattered sources (the old `Scripting` repo, 
 | `microsoft-sentinel/` | Workspace and playbook deployment, detections, analytic rules, hunting queries, test-tenant tooling |
 | `powershell/` | Reusable functions, module helpers, profile setup |
 | `desktop/` | Windows context-menu tweaks, provisioning (Chocolatey, Commando), icon normalization; Linux environment setup |
-| `utilities/` | File conversion and editing, image cropping, VS Code backup, Python snippets |
+| `utilities/` | File conversion and editing, image cropping, VS Code backup, Python snippets; [repo-radar](utilities/repo-radar/README.md) (dashboard of local repos) and [skill-sync](utilities/skill-sync/README.md) (keeps Claude and Codex skills in sync) |
 | `templates/` | Script starter files |
 
 Each platform folder has its own `README.md` with a per-script table where one exists.
@@ -27,7 +27,7 @@ Each platform folder has its own `README.md` with a per-script table where one e
 ## Prerequisites
 
 - PowerShell 7+ and the [Az module](https://learn.microsoft.com/powershell/azure/install-azure-powershell) (`Install-Module Az`)
-- Python 3.10+ for the Python utilities; per-folder `requirements.txt` where present (for example `utilities/file-conversion/`)
+- Python 3.10+ for the Python utilities (3.11+ for `utilities/repo-radar` and `utilities/skill-sync`, which use only the standard library); per-folder `requirements.txt` where present (for example `utilities/file-conversion/`)
 - An Azure subscription and, for the Graph-based scripts, an app registration with a client secret
 
 ## Required permissions
@@ -41,6 +41,8 @@ Permissions are per script. Grant only what the script you are running needs; th
 | `InformationProtectionPolicy.Read.All` (Graph application) | Tenant | `microsoft-purview/Get-PurviewSensitivityLabels.ps1` |
 | `eDiscovery.Read.All` (Graph application) | Tenant | `microsoft-purview/Get-PurviewEdiscoveryCases.ps1` |
 | Depends on endpoint | Tenant | `microsoft-graph/Invoke-MsGraph.ps1` calls any Graph endpoint |
+| Read/write on skill folders (`~/.claude/skills`, `~/.agents/skills`, a repo's `.claude/skills` and `.agents/skills`) | Local files | `utilities/skill-sync`; no network access |
+| Read on local git repos; `gh` CLI signed in (read-only calls, optional) | Local files, GitHub | `utilities/repo-radar`; it never changes a repo |
 | Azure RBAC role for the target operation | Resource group or subscription | `azure/` and `microsoft-sentinel/` deploy scripts. The scripts do not yet document a specific least-privilege role, so choose the narrowest role that covers the deployment rather than defaulting to Contributor |
 
 The `entra/`, `exchange-online/`, and remaining `microsoft-sentinel/` scripts do not state their required permissions in a README yet.
