@@ -1,0 +1,52 @@
+name: skill-sync-ci
+
+on:
+  pull_request:
+    paths:
+      - "utilities/skill-sync/**"
+      - ".github/workflows/skill-sync-ci.yml"
+  push:
+    branches: [main]
+    paths:
+      - "utilities/skill-sync/**"
+      - ".github/workflows/skill-sync-ci.yml"
+
+permissions:
+  contents: read
+
+concurrency:
+  group: skill-sync-ci-${{ github.ref }}
+  cancel-in-progress: true
+
+defaults:
+  run:
+    working-directory: utilities/skill-sync
+
+jobs:
+  test:
+    runs-on: ${{ matrix.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-latest, windows-latest]
+        python: ["3.11", "3.13"]
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: ${{ matrix.python }}
+          cache: pip
+          cache-dependency-path: utilities/skill-sync/pyproject.toml
+      - run: pip install -e ".[dev]"
+      - run: ruff check --output-format=github .
+      - run: ruff format --check .
+      - run: mypy src
+      - name: Test
+        shell: bash
+        run: |
+          pytest --junitxml=results.xml
+          {
+            echo "### skill-sync tests (${{ matrix.os }}, py${{ matrix.python }})"
+            echo
+            echo "Result file: results.xml"
+          } >> "$GITHUB_STEP_SUMMARY"
