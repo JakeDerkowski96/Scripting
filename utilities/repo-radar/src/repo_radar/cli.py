@@ -185,8 +185,9 @@ def _cmd_obsidian(args: argparse.Namespace) -> int:
     )
     for action in actions:
         if action.verb != "unchanged":
+            verb = action.verb.removesuffix("d") if args.dry_run else action.verb
             prefix = "would " if args.dry_run else ""
-            print(f"{prefix}{action.verb} {action.path.relative_to(vault)}")
+            print(f"{prefix}{verb} {action.path.relative_to(vault)}")
     changed = sum(1 for a in actions if a.verb != "unchanged")
     print(
         f"{changed} of {len(actions)} note(s) {'would change' if args.dry_run else 'written'} in {vault}"
