@@ -9,6 +9,7 @@
 | `repo-radar show NAME` | Full detail for one project |
 | `repo-radar report` | Write the HTML dashboard to `~/.repo-radar/report.html` (`-o` to change, `--open` to launch) |
 | `repo-radar check` | Enforce the repos-folder rules (below). Always re-scans. Exit code 3 when there are violations, so it can gate a hook or CI |
+| `repo-radar obsidian --vault DIR` | Write one note per repo plus `Dashboard.md` into an Obsidian vault (see below). `--dry-run` previews; `REPO_RADAR_VAULT` replaces `--vault` |
 | `repo-radar init NAME... \| --all` | Draft a `.project.toml` where none exists (`--dry-run`, `--force`) |
 
 Shared flags: `--root`, `--cache`, `--fetch`, `--no-github`, `-v`.
@@ -24,6 +25,23 @@ repo-radar show scrawl
 repo-radar report --stage active --open
 repo-radar init --all --dry-run          # then re-run without --dry-run
 ```
+
+## Obsidian vault
+
+`repo-radar obsidian --vault <folder>` turns a scan into notes you can track work in:
+
+```text
+Dashboard.md       rewritten every run: counts, a table linking every repo, flags
+Follow-ups.md      created once if missing, then yours; never rewritten
+Repos/<name>.md    one note per repo
+```
+
+In a repo note, the frontmatter keys `type, stage, visibility, branch, sync, open_prs, ci,
+last_commit, flags, scanned` and the block between `<!-- repo-radar:start -->` and
+`<!-- repo-radar:end -->` are regenerated. Everything else (your Notes and Decisions
+sections, extra frontmatter keys) is preserved, so re-running is safe. Frontmatter is
+queryable from Dataview or Bases. Notes are written with LF endings. The vault needs
+no plugins. Use the view flags (`--stage`, `--attention`, `--search`) to export a subset.
 
 ## Reading the table
 

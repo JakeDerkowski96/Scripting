@@ -15,6 +15,7 @@ from repo_radar.exceptions import ConfigurationError
 
 ENV_ROOT = "REPO_RADAR_ROOT"
 ENV_CACHE = "REPO_RADAR_CACHE"
+ENV_VAULT = "REPO_RADAR_VAULT"
 _STATE_DIR_NAME = ".repo-radar"
 
 
@@ -70,3 +71,19 @@ def default_cache_path() -> Path:
 def default_report_path() -> Path:
     """Where the HTML report is written."""
     return state_dir() / "report.html"
+
+
+def resolve_vault(explicit: Path | None = None) -> Path:
+    """Return the Obsidian vault folder to export into.
+
+    Args:
+        explicit: Value of --vault, if given; otherwise $REPO_RADAR_VAULT is used.
+
+    Raises:
+        ConfigurationError: Neither was provided.
+    """
+    env = os.environ.get(ENV_VAULT)
+    chosen = explicit or (Path(env) if env else None)
+    if chosen is None:
+        raise ConfigurationError(f"No vault given. Pass --vault or set {ENV_VAULT}.")
+    return chosen

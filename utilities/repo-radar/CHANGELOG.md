@@ -8,6 +8,7 @@ All notable changes to this project are documented here, following
 
 ### Added
 
+- `obsidian` command: writes a per-repo note and a dashboard into an Obsidian vault, refreshing generated parts and preserving hand-written ones.
 - `scan`, `list`, `show`, `report`, `init` and `check` commands; `python -m repo_radar` entry point.
 - `check` enforces the repos-folder rules (git-only folders, expected visibility) and exits 3 on violations.
 - Terminal table and self-contained HTML dashboard.
