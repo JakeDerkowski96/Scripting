@@ -7,12 +7,13 @@ Usage:
     repo-radar report [-o FILE] [--open]         write the HTML dashboard
     repo-radar init NAME... | --all [--dry-run]  draft .project.toml files
     repo-radar check                             enforce the repos-folder rules
+    repo-radar obsidian --vault DIR [--dry-run]  write notes into an Obsidian vault
 
 Exit codes: 0 ok, 1 error, 2 bad usage, 3 `check` found rule violations.
 
 Required permissions: read access to the repos folder; `gh auth login` for
-PR/CI data; write access to ~/.repo-radar (cache, report) and, for `init`,
-to the repos it drafts files into. See README for the full table.
+PR/CI data; write access to ~/.repo-radar (cache, report), for `init`,
+to the repos it drafts files into, and for `obsidian` to the vault. See README for the full table.
 """
 
 from __future__ import annotations
@@ -25,7 +26,7 @@ import webbrowser
 from datetime import datetime
 from pathlib import Path
 
-from repo_radar import __version__, cache, config, scanner
+from repo_radar import __version__, cache, config, obsidian, scanner
 from repo_radar.attention import FLAGS, RULE_FLAGS
 from repo_radar.exceptions import RepoRadarError
 from repo_radar.meta import META_FILENAME, draft_summary, write_template
@@ -87,6 +88,12 @@ def build_parser() -> argparse.ArgumentParser:
         "check", help="verify the repos-folder rules (git-only, visibility); exit 3 on violations"
     )
     _add_source_args(check_p, refresh=False)
+
+    obs_p = sub.add_parser("obsidian", help="write one note per repo plus a dashboard into a vault")
+    _add_source_args(obs_p, refresh=True)
+    _add_view_args(obs_p)
+    obs_p.add_argument("--vault", type=Path, help="vault folder (or set REPO_RADAR_VAULT)")
+    obs_p.add_argument("--dry-run", action="store_true", help="show what would be written")
 
     init_p = sub.add_parser("init", help=f"draft a {META_FILENAME} in repos that lack one")
     init_p.add_argument("names", nargs="*", help="project folder names")
@@ -170,6 +177,24 @@ def _cmd_check(args: argparse.Namespace) -> int:
     return 3
 
 
+def _cmd_obsidian(args: argparse.Namespace) -> int:
+    vault = config.resolve_vault(args.vault)
+    result = _get_result(args)
+    actions = obsidian.export(
+        vault, result, _select(result, args), datetime.now().astimezone(), dry_run=args.dry_run
+    )
+    for action in actions:
+        if action.verb != "unchanged":
+            verb = action.verb.removesuffix("d") if args.dry_run else action.verb
+            prefix = "would " if args.dry_run else ""
+            print(f"{prefix}{verb} {action.path.relative_to(vault)}")
+    changed = sum(1 for a in actions if a.verb != "unchanged")
+    print(
+        f"{changed} of {len(actions)} note(s) {'would change' if args.dry_run else 'written'} in {vault}"
+    )
+    return 0
+
+
 def _cmd_init(args: argparse.Namespace) -> int:
     if not args.names and not args.all:
         print("error: give project names or --all", file=sys.stderr)
@@ -206,6 +231,7 @@ _HANDLERS = {
     "report": _cmd_report,
     "init": _cmd_init,
     "check": _cmd_check,
+    "obsidian": _cmd_obsidian,
 }
 
 

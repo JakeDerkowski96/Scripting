@@ -26,6 +26,7 @@ docs/             usage, metadata format, troubleshooting
 |---|---|---|
 | Read | the repos folder | Read git state and `.project.toml` |
 | Write | `~/.repo-radar/` | Cache the last scan and write the HTML report |
+| Write | the Obsidian vault (only for `obsidian`) | Create and refresh repo notes and the dashboard |
 | Write | each repo (only for `init`) | Create a draft `.project.toml` |
 | GitHub: read access to your repos | `gh` login | Read PRs, issues, and workflow runs. Nothing is created or modified |
 | Network + `origin` read | only with `--fetch` | `git fetch` updates remote-tracking refs, nothing else |
@@ -40,6 +41,7 @@ repo-radar scan                   # scan, cache, print the table
 repo-radar list --attention       # cached scan, only repos with flags
 repo-radar report --open          # write and open the HTML dashboard
 repo-radar init --all --dry-run   # preview draft .project.toml files
+repo-radar obsidian --vault <dir>   # write notes into an Obsidian vault
 repo-radar check                  # enforce the repos-folder rules (exit 3 on violations)
 ```
 
